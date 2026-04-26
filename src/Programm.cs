@@ -1,7 +1,7 @@
-﻿using CtorGenerator.Models;
+using Ctorgen.Models;
 using System.Text.Json;
 
-namespace CtorGenerator;
+namespace Ctorgen;
 
 /// <summary>
 /// Entry point for the CtorGenerator .NET tool.
@@ -64,7 +64,7 @@ public static class Program
 
     private static InputModel ParseArgs(string[] args)
     {
-        var input = new InputModel();
+        InputModel input = new InputModel();
 
         foreach (string arg in args)
         {
@@ -99,13 +99,9 @@ public static class Program
         string value = arg["--param=".Length..];
         string[] parts = value.Split(':');
 
-        if (parts.Length != 3)
-        {
-            throw new ArgumentException(
-                $"Invalid param format: '{arg}'. Expected: --param=name:type:hash");
-        }
-
-        return new Param(
+        return parts.Length != 3
+            ? throw new ArgumentException($"Invalid param format: '{arg}'. Expected: --param=name:type:hash")
+            : new Param(
             name: parts[0],
             type: parts[1],
             hash: parts[2]
@@ -125,7 +121,7 @@ public static class Program
         }
 
         string json = File.ReadAllText(input.ConfigPath);
-        var config = JsonSerializer.Deserialize<GeneratorConfig>(json, JsonOptions)
+        GeneratorConfig config = JsonSerializer.Deserialize<GeneratorConfig>(json, JsonOptions)
             ?? throw new InvalidOperationException("Failed to deserialize config: empty or invalid JSON");
 
         // CLI args override config file values
@@ -150,14 +146,22 @@ public static class Program
         }
 
         // Validate each parameter
-        foreach (var param in input.Params)
+        foreach (Param param in input.Params)
         {
             if (string.IsNullOrEmpty(param.Name))
+            {
                 throw new ArgumentException("Parameter name cannot be empty");
+            }
+
             if (string.IsNullOrEmpty(param.Type))
+            {
                 throw new ArgumentException($"Parameter '{param.Name}' type cannot be empty");
+            }
+
             if (string.IsNullOrEmpty(param.Hash))
+            {
                 throw new ArgumentException($"Parameter '{param.Name}' hash expression cannot be empty");
+            }
         }
     }
 
@@ -168,7 +172,7 @@ public static class Program
 
     private static string Generate(InputModel input)
     {
-        var code = CtorGenerator.Generate(input.ClassName!, [.. input.Params]);
+        string code = CtorGenerator.Generate(input.ClassName!, [.. input.Params]);
 
         return code;
     }
@@ -179,7 +183,7 @@ public static class Program
         string? directory = Path.GetDirectoryName(input.OutputPath);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {
-            Directory.CreateDirectory(directory);
+            _ = Directory.CreateDirectory(directory);
         }
 
         File.WriteAllText(input.OutputPath!, result);
@@ -188,10 +192,10 @@ public static class Program
 
     private static void CreateTemplate(string path)
     {
-        var config = new GeneratorConfig
+        GeneratorConfig config = new GeneratorConfig
         (
             className: "MyModelHash",
-            @params: 
+            @params:
             [
                 new Param(
                     name: "id",

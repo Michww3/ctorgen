@@ -1,4 +1,4 @@
-﻿namespace CtorGenerator.Models;
+namespace Ctorgen.Models;
 
 public sealed record GeneratorConfig
 {

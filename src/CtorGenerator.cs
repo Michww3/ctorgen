@@ -1,7 +1,7 @@
-﻿using CtorGenerator.Models;
+using Ctorgen.Models;
 using System.Text;
 
-namespace CtorGenerator;
+namespace Ctorgen;
 
 /// <summary>
 /// Generates overloaded constructors with a "ladder" initialization chain.
@@ -33,12 +33,12 @@ public static class CtorGenerator
 
         ArgumentNullException.ThrowIfNull(className);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         int paramCount = @params.Length;
         int totalMasks = 1 << paramCount;
 
         // Order masks: first by number of hash Params, then by numeric value
-        var orderedMasks = Enumerable.Range(0, totalMasks)
+        IOrderedEnumerable<int> orderedMasks = Enumerable.Range(0, totalMasks)
             .OrderBy(CountBits)
             .ThenBy(mask => mask);
 
@@ -46,7 +46,9 @@ public static class CtorGenerator
         {
             // Skip the final mask — it is handled separately
             if (mask == totalMasks - 1)
+            {
                 continue;
+            }
 
             int nextMask = BuildNextMask(mask, paramCount);
             _ = sb.AppendLine(BuildDelegatingCtor(className, @params, mask, nextMask));
@@ -81,7 +83,7 @@ public static class CtorGenerator
     /// </summary>
     private static string BuildParameterList(Param[] @params, int mask)
     {
-        var paramDeclarations = @params.Select((param, index) =>
+        IEnumerable<string> paramDeclarations = @params.Select((param, index) =>
         {
             bool useHash = IsHashed(mask, index);
             string type = useHash ? HashInterfaceType : param.Type;
@@ -95,9 +97,9 @@ public static class CtorGenerator
     /// <summary>
     /// Builds the argument list for the chained this(...) call.
     /// </summary>
-    private static string BuildChainedArgumentList(Param[] Params, int currentMask, int nextMask)
+    private static string BuildChainedArgumentList(Param[] @params, int currentMask, int nextMask)
     {
-        var arguments = Params.Select((param, index) =>
+        IEnumerable<string> arguments = @params.Select((param, index) =>
         {
             string value = ResolveArgumentValue(param, index, currentMask, nextMask);
             return $"{Indent2}{value}";
@@ -113,11 +115,15 @@ public static class CtorGenerator
     {
         // If parameter is already a hash in current mask — pass the hash parameter name
         if (IsHashed(currentMask, index))
+        {
             return BuildHashParameterName(param.Name);
+        }
 
         // If parameter becomes a hash in the next mask — use the hash expression
         if (IsHashed(nextMask, index))
+        {
             return param.Hash;
+        }
 
         // Otherwise pass the regular parameter name
         return param.Name;
@@ -126,10 +132,10 @@ public static class CtorGenerator
     /// <summary>
     /// Builds the final constructor that initializes fields directly.
     /// </summary>
-    private static string BuildFinalCtor(string className, Param[] Params)
+    private static string BuildFinalCtor(string className, Param[] @params)
     {
-        string parameterList = BuildFinalParameterList(Params);
-        string fieldAssignments = BuildFieldAssignments(Params);
+        string parameterList = BuildFinalParameterList(@params);
+        string fieldAssignments = BuildFieldAssignments(@params);
 
         return $"public {className}({LineBreak}" +
                 $"{parameterList}{LineBreak}" +
@@ -142,9 +148,9 @@ public static class CtorGenerator
     /// <summary>
     /// Builds the parameter list for the final constructor (all Params as hashes).
     /// </summary>
-    private static string BuildFinalParameterList(Param[] Params)
+    private static string BuildFinalParameterList(Param[] @params)
     {
-        var paramDeclarations = Params.Select(param =>
+        IEnumerable<string> paramDeclarations = @params.Select(param =>
             $"{Indent1}{HashInterfaceType} {BuildHashParameterName(param.Name)}");
 
         return string.Join(CommaLineBreak, paramDeclarations);
@@ -153,9 +159,9 @@ public static class CtorGenerator
     /// <summary>
     /// Builds field assignment statements for the final constructor body.
     /// </summary>
-    private static string BuildFieldAssignments(Param[] Params)
+    private static string BuildFieldAssignments(Param[] @params)
     {
-        var assignments = Params.Select(param =>
+        IEnumerable<string> assignments = @params.Select(param =>
             $"{Indent1}{BuildFieldName(param.Name)} = {BuildHashParameterName(param.Name)};");
 
         return string.Join(LineBreak, assignments);
@@ -179,7 +185,9 @@ public static class CtorGenerator
         for (int i = 0; i < paramCount; i++)
         {
             if (!IsHashed(mask, i))
+            {
                 return i;
+            }
         }
         return -1;
     }
@@ -187,20 +195,26 @@ public static class CtorGenerator
     /// <summary>
     /// Checks whether a parameter is represented as a hash in the given mask.
     /// </summary>
-    private static bool IsHashed(int mask, int parameterIndex) =>
-        (mask & (1 << parameterIndex)) != 0;
+    private static bool IsHashed(int mask, int parameterIndex)
+    {
+        return (mask & (1 << parameterIndex)) != 0;
+    }
 
     /// <summary>
     /// Formats a hash parameter name: {originalName}Hash.
     /// </summary>
-    private static string BuildHashParameterName(string originalName) =>
-        originalName + HashSuffix;
+    private static string BuildHashParameterName(string originalName)
+    {
+        return originalName + HashSuffix;
+    }
 
     /// <summary>
     /// Formats a field name for storing a hash: _{originalName}Hash.
     /// </summary>
-    private static string BuildFieldName(string originalName) =>
-        FieldPrefix + originalName + HashSuffix;
+    private static string BuildFieldName(string originalName)
+    {
+        return FieldPrefix + originalName + HashSuffix;
+    }
 
     /// <summary>
     /// Counts the number of set bits in an integer.

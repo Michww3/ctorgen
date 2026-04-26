@@ -1,6 +1,6 @@
 ﻿namespace CtorGenerator.Models;
 
-public class Param
+public sealed record Param
 {
     public string Type { get; init; }
     public string Name { get; init; }

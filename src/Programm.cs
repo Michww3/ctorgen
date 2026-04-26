@@ -129,7 +129,8 @@ public static class Program
         {
             ConfigPath = input.ConfigPath,
             ClassName = input.ClassName ?? config.ClassName,
-            Params = input.Params.Count > 0 ? input.Params : [.. config.Params]
+            Params = input.Params.Count > 0 ? input.Params : [.. config.Params],
+            OutputPath = input.OutputPath ?? $"{input.ClassName ?? config.ClassName}.Ctors.cs"
         };
     }
 

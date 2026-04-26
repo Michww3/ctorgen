@@ -1,0 +1,20 @@
+{
+  "ClassName": "MyModelHash",
+  "Params": [
+    {
+      "Type": "IGuid",
+      "Name": "id",
+      "Hash": "new DeterminedHash(id)"
+    },
+    {
+      "Type": "IString",
+      "Name": "name",
+      "Hash": "new DeterminedHash(name)"
+    },
+    {
+      "Type": "DateTime",
+      "Name": "timestamp",
+      "Hash": "new DeterminedHash(timestamp)"
+    }
+  ]
+}

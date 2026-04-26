@@ -2,9 +2,33 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>ctorgen</ToolCommandName>
+
+    <PackageId>ctorgen</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Michww3</Authors>
+    <Description>CLI tool for generating ladder-style constructors for C# models</Description>
+    <PackageTags>codegen;dotnet-tool;constructors;csharp</PackageTags>
+
+    <RepositoryUrl>https://github.com/Michww3/ctorgen</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Michww3/ctorgen</PackageProjectUrl>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <PublishTrimmed>false</PublishTrimmed>
+    <PackRelease>true</PackRelease>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
 </Project>

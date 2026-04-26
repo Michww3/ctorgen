@@ -42,7 +42,7 @@
 dotnet tool install --global ctorgen
 ```
 
-### Local build
+### Local build (run from src folder)
 
 ```bash
 dotnet pack -c Release

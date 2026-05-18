@@ -4,6 +4,8 @@
 
 `ctorgen` eliminates repetitive constructor boilerplate by generating a full chain of overloaded constructors where parameters are progressively replaced with their hash representations.
 
+Check [testgen](https://github.com/Michww3/testgen) to generate unit tests for ctors.
+
 ---
 
 ## 📚 Table of Contents
